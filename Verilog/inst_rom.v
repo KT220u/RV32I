@@ -4,14 +4,14 @@ module inst_rom(CLK, NRST, prepc, nextpc, pc, inst, stall, hit_predict, fail_pre
 	input CLK, NRST;
 	
 	// 分岐予測器による予測PC
-	input [31:0] prepc;
+	input [12:0] prepc;
 
 	// 予測失敗時の次PC　Dステージでミス発覚 or Eステージでミス発覚
 	// 分岐先キャッシュ読み出しは１クロック後から可能になる
-	input [31:0] nextpc;
+	input [12:0] nextpc;
 
 	// 読み出している命令に対応するPC
-	output reg [31:0] pc;
+	output reg [12:0] pc;
 	output [31:0] inst;
 
 	// predict : 分岐キャッシュヒット
@@ -22,22 +22,24 @@ module inst_rom(CLK, NRST, prepc, nextpc, pc, inst, stall, hit_predict, fail_pre
 	
 	wire fail_predict;
 
-	parameter startpc = 32768;
+	parameter startpc = 0;
 
 	// posedgeでPC更新
 	// ストール時　PCを更新しない
 	// 分岐予測ミス時　
 	// 分岐キャッシュヒット時　
 	// 分岐キャッシュミス時　PC+4
+	
+
 	always @(posedge CLK) begin
 		if(!NRST) pc <= startpc;
 		else if(stall) pc <= pc;
 		else if(fail_predict) pc <= nextpc;
 		else if(hit_predict) pc <= prepc;
-		else pc <= pc + 32'd4;
+		else pc <= pc + 13'd1;
 	end
 
-	inst_rom_block inst_rom_block(CLK, pc[14:2], inst);		//pcの下２ビットは除く
+	inst_rom_block inst_rom_block(CLK, pc[12:0], inst);		//pcの下２ビットは除く
 endmodule
 
 module inst_rom_block(clk, r_addr, r_data);

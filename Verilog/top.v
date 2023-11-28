@@ -18,9 +18,9 @@ module top(sysclk, cpu_resetn,  led, uart_tx);
     
 
 	wire [31:0] instF, instD, instE, instM;
-	wire [31:0] pcF, pcD, pcE, pcM;
-	wire [31:0] prepc;
-	wire [31:0] nextpc, nextpcD, nextpcE;
+	wire [12:0] pcF, pcD, pcE, pcM;
+	wire [12:0] prepc;
+	wire [12:0] nextpc, nextpcD, nextpcE;
 	wire [4:0] rs1D, rs1E, rs1M, rs2D, rs2E, rs2M, rdD, rdE, rdM, rdW;
 	wire [31:0] immD, immE;
 	wire [31:0] reg_data1D, reg_data1E, reg_data2D, reg_data2E;

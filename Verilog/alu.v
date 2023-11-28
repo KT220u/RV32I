@@ -1,8 +1,8 @@
 `include "define.vh"
 
-module alu(CLK, PC, alu_code, alu_src, reg_data1, reg_data2, imm, result);
+module alu(CLK, pc, alu_code, alu_src, reg_data1, reg_data2, imm, result);
 	input CLK;
-	input [31:0] PC;
+	input [12:0] pc;
 	input [5:0] alu_code;
 	input alu_src;
 	input [31:0] reg_data1, reg_data2, imm;
@@ -14,10 +14,13 @@ module alu(CLK, PC, alu_code, alu_src, reg_data1, reg_data2, imm, result);
 		PCbuffer <= PC;
 	end
 */
+	wire [31:0] PC;		// PCをALU演算のために32bit拡張
 	wire [31:0] src1, src2;
 	
+	assign PC = {16'd0, 1'b1, pc, 2'b00};
 	assign src1 = reg_data1;
 	assign src2 = (alu_src) ? imm : reg_data2;
+
 
 	assign result = RESULT(src1, src2, alu_code, PC);
 

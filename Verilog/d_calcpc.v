@@ -1,14 +1,14 @@
 `include "define.vh"
 
 module d_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_code, nextpc, cannot_predict, fail_predict);
-	input [31:0] pc;
+	input [12:0] pc;
 
 	// 予測したPC、nextpcの結果と後で比較する
-	input [31:0] pc_predicted;
+	input [12:0] pc_predicted;
 	input [31:0] imm, reg_data1, reg_data2;
 	input [1:0] jump_code;
 	input [2:0] branch_code;
-	output [31:0] nextpc;
+	output [12:0] nextpc;
 	
 	input cannot_predict;
 
@@ -20,16 +20,16 @@ module d_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_c
 
 	assign fail_predict = (nextpc == pc_predicted | cannot_predict) ? 1'b0 : 1'b1;
 	assign flag = Flag(branch_code, reg_data1, reg_data2);
-	assign nextpc = Nextpc(pc, reg_data1, imm, jump_code,  flag);
+	assign nextpc = Nextpc(pc, reg_data1[14:2], imm[14:2], jump_code, flag);
 
-	function [31:0] Nextpc;
-		input [31:0] pc, reg_data1, imm;
+	function [12:0] Nextpc;
+		input [12:0] pc, reg_data1, imm;
 		input [1:0] jump_code;
 		input flag;
 		if(jump_code == 2'b11) Nextpc = reg_data1 + imm;
 		else if(jump_code == 2'b10) Nextpc = pc + imm;
 		else if(jump_code == 2'b01 & flag) Nextpc = pc + imm;
-		else Nextpc = pc + 32'd4;
+		else Nextpc = pc + 13'd1;
 	endfunction
 
 	function Flag;

@@ -1,13 +1,15 @@
 module em_reg(CLK, NRST, pcE, instE, rdE, resultE, store_dataE, mem_storeE, mem_loadE, reg_writeE, pcM, instM, rdM, resultM, store_dataM, mem_storeM, mem_loadM, reg_writeM);
 	input CLK, NRST;
-	input [31:0] pcE, instE;
+	input [12:0] pcE;
+	input [31:0] instE;
 	input [4:0] rdE;
 	input [31:0] resultE, store_dataE; 
 	input [1:0] mem_storeE;
 	input [2:0] mem_loadE;
 	input reg_writeE;
 
-	output reg [31:0] pcM, instM;
+	output reg [12:0] pcM;
+	output reg [31:0] instM;
 	output reg [4:0] rdM;
 	output reg [31:0] resultM, store_dataM; 
 	output reg [1:0] mem_storeM;
@@ -16,7 +18,7 @@ module em_reg(CLK, NRST, pcE, instE, rdE, resultE, store_dataE, mem_storeE, mem_
 
 	always @(posedge CLK) begin
 		if(!NRST) begin
-			pcM <= 32'd0;
+			pcM <= 13'd0;
 			instM <= 32'd0;
 			rdM <= 5'd0;
 			resultM <= 32'd0;

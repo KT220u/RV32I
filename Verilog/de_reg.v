@@ -1,7 +1,7 @@
 module de_reg(CLK, NRST, pcD, instD, rs1D, rs2D, rdD, source1D, source2D, immD, alu_codeD, alu_srcD, jump_codeD, branch_codeD, mem_storeD, mem_loadD, reg_writeD, cannot_predictD, 
 		pcE, instE, rs1E, rs2E, rdE, source1E, source2E, immE, alu_codeE, alu_srcE, jump_codeE, branch_codeE, mem_storeE, mem_loadE, reg_writeE, cannot_predictE, stall, fail_predictE, nextpc);
 	input CLK, NRST;
-	input [31:0] pcD;
+	input [12:0] pcD;
 	input [31:0] instD;
 	input [4:0] rs1D, rs2D, rdD;
 	input [31:0] source1D, source2D, immD;
@@ -14,7 +14,7 @@ module de_reg(CLK, NRST, pcD, instD, rs1D, rs2D, rdD, source1D, source2D, immD, 
 	input reg_writeD;
 	input cannot_predictD;
 	
-	output reg [31:0] pcE;
+	output reg [12:0] pcE;
 	output reg [31:0] instE;
 	output reg [4:0] rs1E, rs2E, rdE;
 	output reg [31:0] source1E, source2E, immE;
@@ -29,11 +29,11 @@ module de_reg(CLK, NRST, pcD, instD, rs1D, rs2D, rdD, source1D, source2D, immD, 
 
 	input stall;
 	input fail_predictE;
-	input [31:0] nextpc;
+	input [12:0] nextpc;
 
 	always @(posedge CLK) begin
 		if(!NRST) begin
-			pcE <= 32'd0;
+			pcE <= 13'd0;
 			instE <= 32'd0;
 			rs1E <= 5'd0; 
 			rs2E <= 5'd0;
@@ -52,7 +52,7 @@ module de_reg(CLK, NRST, pcD, instD, rs1D, rs2D, rdD, source1D, source2D, immD, 
 		end else begin
 			if(fail_predictE) begin
 				instE <= 32'd0;
-				pcE <= nextpc - 32'd8;	// 分岐予測ミス時は、新しいPC-8として、予測ミス判定となってしまうのを防ぐ。
+				pcE <= nextpc - 13'd2;	// 分岐予測ミス時は、新しいPC-2として、予測ミス判定となってしまうのを防ぐ。
 			end else begin
 				instE <= instD;
 				pcE <= pcD;

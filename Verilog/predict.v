@@ -1,15 +1,15 @@
 module predict(CLK, pcF, prepc, hit_predict, pcD, nextpcD, fail_predictD, pcE, nextpcE, fail_predictE, nextpc, fail_predict);
 	input CLK;
-	input [31:0] pcF;
-	output [31:0] prepc;
+	input [12:0] pcF;
+	output [12:0] prepc;
 	output hit_predict;
-	input [31:0] pcD, nextpcD;
+	input [12:0] pcD, nextpcD;
 	input fail_predictD;
-	input [31:0] pcE, nextpcE;
+	input [12:0] pcE, nextpcE;
 	input fail_predictE;
 
 	// DとEどちらかのnextpcを採用し、inst_romに送る
-	output [31:0] nextpc;
+	output [12:0] nextpc;
 	output fail_predict;
 	
 	assign nextpc = (fail_predictE) ? nextpcE : nextpcD;
@@ -23,14 +23,12 @@ module predict(CLK, pcF, prepc, hit_predict, pcD, nextpcD, fail_predictD, pcE, n
 	wire [1:0] tag;
 	wire [10:0] r_addr;
 	wire [15:0] r_data;
-	wire [12:0] prepc_13bit;
 	
 	// 予測結果の読み出し
-	assign tag = pcF[14:13];
-	assign r_addr = pcF[12:2];
+	assign tag = pcF[12:11];
+	assign r_addr = pcF[10:0];
 	assign hit_predict = (r_data[15] & r_data[14:13] == tag) ? 1'b1 : 1'b0;
-	assign prepc_13bit = r_data[12:0];
-	assign prepc = {16'd0, 1'b1, prepc_13bit, 2'd0};
+	assign prepc = r_data[12:0];
 	
 	// Dステージ、またはEステージで予測ミスが発覚したら、その分岐先結果をキャッシュに書き込む
 	wire [10:0] w_addr;
@@ -39,8 +37,8 @@ module predict(CLK, pcF, prepc, hit_predict, pcD, nextpcD, fail_predictD, pcE, n
 	wire [12:0] new_pc;
 	wire [12:0] new_nextpc;
 	
-	assign new_pc = (fail_predictD) ? pcD[14:2] : pcE[14:2];
-	assign new_nextpc = (fail_predictD) ? nextpcD[14:2] : nextpcE[14:2];
+	assign new_pc = (fail_predictD) ? pcD : pcE;
+	assign new_nextpc = (fail_predictD) ? nextpcD : nextpcE;
 	assign w_addr = new_pc[10:0];
 	assign w_data = {1'b1, new_pc[12:11], new_nextpc};
 	assign wen = fail_predictD | fail_predictE;
