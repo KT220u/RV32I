@@ -21,6 +21,7 @@ module top(sysclk, cpu_resetn,  led, uart_tx);
 	wire [12:0] pcF, pcD, pcE, pcM;
 	wire [12:0] prepc;
 	wire [12:0] nextpc, nextpcD, nextpcE;
+	wire [12:0] jumppcE;
 	wire [4:0] rs1D, rs1E, rs1M, rs2D, rs2E, rs2M, rdD, rdE, rdM, rdW;
 	wire [31:0] immD, immE;
 	wire [31:0] reg_data1D, reg_data1E, reg_data2D, reg_data2E;
@@ -38,7 +39,7 @@ module top(sysclk, cpu_resetn,  led, uart_tx);
 	wire reg_writeD, reg_writeE, reg_writeM, reg_writeW;
 	wire [1:0] mem_storeD, mem_storeE, mem_storeM;
 	wire [2:0] mem_loadD, mem_loadE, mem_loadM;
-	wire cannot_predictD, cannot_predictE;
+	wire cannot_calcpcD, cannot_calcpcE;
 	wire hit_predict;
 	wire stall;
 	wire fail_predict, fail_predictD, fail_predictE;
@@ -68,13 +69,13 @@ module top(sysclk, cpu_resetn,  led, uart_tx);
 
 	d_calcpc d_calcpc(.pc(pcD), .pc_predicted(pcF), .imm(immD), .reg_data1(reg_data1D), .reg_data2(reg_data2D),
 					  .jump_code(jump_codeD), .branch_code(branch_codeD), 
-					  .nextpc(nextpcD), .cannot_predict(cannot_predictD), .fail_predict(fail_predictD));
+					  .nextpc(nextpcD), .cannot_calcpc(cannot_calcpcD), .fail_predict(fail_predictD));
 
 	e_calcpc e_calcpc(.pc(pcE), .pc_predicted(pcD), .imm(immE), .reg_data1(reg_data1E), .reg_data2(reg_data2E),
 					  .jump_code(jump_codeE), .branch_code(branch_codeE), 
-					  .nextpc(nextpcE), .cannot_predict(cannot_predictE), .fail_predict(fail_predictE));
+					  .nextpc(nextpcE), .jumppc(jumppcE), .cannot_calcpc(cannot_calcpcE), .fail_predict(fail_predictE));
 
-	d_forwarding  d_forwarding(.rs1D(rs1D), .rs2D(rs2D), .source1D(source1D), .source2D(source2D), .rdE(rdE), .rdM(rdM), .resultM(resultM), .reg_writeE(reg_writeE), .mem_loadE(mem_loadE), .reg_writeM(reg_writeM), .mem_loadM(mem_loadM), .reg_data1D(reg_data1D), .reg_data2D(reg_data2D), .jump_code(jump_codeD), .cannot_predict(cannot_predictD), .stall(stall));
+	d_forwarding  d_forwarding(.rs1D(rs1D), .rs2D(rs2D), .source1D(source1D), .source2D(source2D), .rdE(rdE), .rdM(rdM), .resultM(resultM), .reg_writeE(reg_writeE), .mem_loadE(mem_loadE), .reg_writeM(reg_writeM), .mem_loadM(mem_loadM), .reg_data1D(reg_data1D), .reg_data2D(reg_data2D), .jump_code(jump_codeD), .cannot_calcpc(cannot_calcpcD), .stall(stall));
 	
 	predict predict(.CLK(CLK), .pcF(pcF), .prepc(prepc), .hit_predict(hit_predict), 
 			.pcD(pcD), .nextpcD(nextpcD), .fail_predictD(fail_predictD), 
@@ -88,8 +89,8 @@ module top(sysclk, cpu_resetn,  led, uart_tx);
     hardware_counter hardware_counter(.CLK_IP(CLK),.RSTN_IP(NRST), .COUNTER_OP(hc_OUT_data));
 
 	fd_reg fd_reg(CLK, NRST, pcF, instF, pcD, instD, stall, fail_predictD, fail_predictE, nextpc);
-	de_reg de_reg(CLK, NRST, pcD, instD, rs1D, rs2D, rdD, source1D, source2D, immD, alu_codeD, alu_srcD, jump_codeD, branch_codeD,  mem_storeD, mem_loadD, reg_writeD, cannot_predictD,  
-			pcE, instE, rs1E, rs2E, rdE, source1E, source2E, immE, alu_codeE, alu_srcE, jump_codeE, branch_codeE, mem_storeE, mem_loadE, reg_writeE, cannot_predictE, stall, fail_predictE, nextpc);
+	de_reg de_reg(CLK, NRST, pcD, instD, rs1D, rs2D, rdD, source1D, source2D, immD, alu_codeD, alu_srcD, jump_codeD, branch_codeD,  mem_storeD, mem_loadD, reg_writeD, cannot_calcpcD,  
+			pcE, instE, rs1E, rs2E, rdE, source1E, source2E, immE, alu_codeE, alu_srcE, jump_codeE, branch_codeE, mem_storeE, mem_loadE, reg_writeE, cannot_calcpcE, stall, fail_predictE, nextpc);
 	em_reg em_reg(CLK, NRST, pcE, instE, rdE, resultE,  reg_data2E, mem_storeE, mem_loadE, reg_writeE, 
 			pcM, instM, rdM, resultM, store_dataM, mem_storeM, mem_loadM, reg_writeM);
 	mw_reg mw_reg(CLK, NRST, rdM, distM, reg_writeM, rdW, distW, reg_writeW);

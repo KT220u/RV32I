@@ -35,16 +35,11 @@ module test;
 
 /*
 	always begin
-		//#10 $display("%h, %h, %h, %h,  %h, %h, %h, %h, %h, %h, %h, %h, %h, %h, %h, %h", CLK, top.pcF, top.pcD, top.pcE, top.pcM, top.instF, top.instD, top.instE, top.instM, top.mem_loadM, top.reg_writeM, top.rs1D, top.rdM, top.source1D, top.source2D, top.stall);
-		//#20 $display("%h, %h, %h, %h, %h, %h, %h, %h, %h, %h", top.data_ram.data_ram_block.mem[address], top.data_ram.r_data, top.resultE, top.resultM, top.data_ram.r_data, top.data_ram.w_data, top.data_ram.w_data0, top.uart_we, top.uart_IN_data, top.uart_OUT_data);
-		//#20 $display("%h,  %h, %h, %h", top.inst_rom.pc, top.fail_predictD, top.fail_predictE, top.hit_predict);
-		#10 $display("%b, %h, %h,  %h, %h, %h, %h, %h, %h, %h, %h, %h", CLK, top.pcF, top.pcD, top.pcE, top.pcM, top.stall, top.fail_predictD, top.fail_predictE, top.predict.prepc, top.predict.r_addr, top.predict.r_data, top.hit_predict);
-//		$display("%h, %h, %h, %h, %h", top.rs1D, top.rs2D, top.rdM, top.mem_loadM, top.jump_codeD);
-//		$display("%h, %h, %h, %h, %h", top.d_forwarding.rs1D, top.d_forwarding.rs2D, top.d_forwarding.rdM, top.d_forwarding.mem_loadM, top.d_forwarding.jump_code);
-		//#20 $display("%h, %h, %h", top.predict.wen, top.predict.w_addr << 2, {1'b1 , top.predict.w_data[12:0], 2'b00});
+		#10 $display("%b, %h, %h,  %h, %h, %h, %h, %h, %h, %h, %h, %h", CLK, top.pcF, top.pcD, top.pcE, top.pcM, top.stall, top.fail_predictD, top.fail_predictE, top.cannot_calcpcD, top.cannot_calcpcE, top.predict.r_data, top.hit_predict);
 	end
 */
-/*	レジスタの確認
+
+/* レジスタの確認
 
 	initial begin
 		$monitor("%h,%h,%h,%h,%h,%h,%h,%h,%h,%h", top.regfile.reg_file[1], top.regfile.reg_file[2],top.regfile.reg_file[3],top.regfile.reg_file[4], top.regfile.reg_file[5], top.regfile.reg_file[6], top.regfile.reg_file[7], top.regfile.reg_file[8], top.regfile.reg_file[9], top.regfile.reg_file[10]);   

@@ -1,4 +1,4 @@
-module d_forwarding(rs1D, rs2D, source1D, source2D, rdE, rdM, resultM, reg_writeE, mem_loadE, reg_writeM, mem_loadM, reg_data1D, reg_data2D, jump_code, cannot_predict, stall);
+module d_forwarding(rs1D, rs2D, source1D, source2D, rdE, rdM, resultM, reg_writeE, mem_loadE, reg_writeM, mem_loadM, reg_data1D, reg_data2D, jump_code,  cannot_calcpc, stall);
 	input [4:0] rs1D, rs2D;
 	input [31:0] source1D, source2D;
 	input [4:0] rdE, rdM;
@@ -10,7 +10,7 @@ module d_forwarding(rs1D, rs2D, source1D, source2D, rdE, rdM, resultM, reg_write
 	input [1:0] jump_code;
 
 	// データハザードにより、分岐先アドレス計算ができない
-	output cannot_predict;
+	output cannot_calcpc;
 	// データハザードにより、Eステージで演算ができない
 	output stall;
 
@@ -21,7 +21,7 @@ module d_forwarding(rs1D, rs2D, source1D, source2D, rdE, rdM, resultM, reg_write
 	// １つ前の命令 or ２つ前の命令がLOAD
 	// jalr では rs1 が必要
 	// branch では rs1, rs2 が必要
-	assign cannot_predict = (((rs1D == rdE | rs2D == rdE) & rdE != 5'd0 & reg_writeE & jump_code == 2'b01) | 
+	assign cannot_calcpc = (((rs1D == rdE | rs2D == rdE) & rdE != 5'd0 & reg_writeE & jump_code == 2'b01) | 
 							 ( rs1D == rdE & rdE != 5'd0 & reg_writeE & jump_code == 2'b11) |
 							 ((rs1D == rdM | rs2D == rdM) & rdM != 5'd0 & mem_loadM >= 3'b001 & jump_code == 2'b01) | 
 							 ( rs1D == rdM  & rdM != 5'd0 & mem_loadM >= 3'b001 & jump_code == 2'b11)) ? 1'b1 : 1'b0;

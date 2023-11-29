@@ -1,6 +1,6 @@
 `include "define.vh"
 
-module d_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_code, nextpc, cannot_predict, fail_predict);
+module d_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_code, nextpc, cannot_calcpc, fail_predict);
 	input [12:0] pc;
 
 	// 予測したPC、nextpcの結果と後で比較する
@@ -9,27 +9,32 @@ module d_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_c
 	input [1:0] jump_code;
 	input [2:0] branch_code;
 	output [12:0] nextpc;
-	
-	input cannot_predict;
+
+	// データハザードにより、PC計算できなかった。
+	input cannot_calcpc;
 
 	// 分岐予測ミス
 	output fail_predict;
 	
-	// ブランチの条件判定
+	// jal or jalr or branch条件を満たす
 	wire flag;
+	
+	// 分岐PC　分岐キャッシュにこれを書き込む
+	wire [12:0] jumppc;
 
-	assign fail_predict = (nextpc == pc_predicted | cannot_predict) ? 1'b0 : 1'b1;
+	assign fail_predict = (nextpc == pc_predicted | cannot_calcpc) ? 1'b0 : 1'b1;
 	assign flag = Flag(branch_code, reg_data1, reg_data2);
-	assign nextpc = Nextpc(pc, reg_data1[14:2], imm[14:2], jump_code, flag);
+	assign jumppc = Jumppc(pc, reg_data1[14:2], imm[14:2], jump_code);
+	assign nextpc = (flag | jump_code[1]) ? jumppc : pc + 13'b1;
 
-	function [12:0] Nextpc;
+	// jump_codeに応じて、分岐時のPCを計算する。
+	// 実際に分岐するPC(Nextpc)とは異なる。
+	function [12:0] Jumppc;
 		input [12:0] pc, reg_data1, imm;
 		input [1:0] jump_code;
-		input flag;
-		if(jump_code == 2'b11) Nextpc = reg_data1 + imm;
-		else if(jump_code == 2'b10) Nextpc = pc + imm;
-		else if(jump_code == 2'b01 & flag) Nextpc = pc + imm;
-		else Nextpc = pc + 13'd1;
+		if(jump_code == 2'b11) Jumppc = reg_data1 + imm;
+		else if(jump_code == 2'b10) Jumppc = pc + imm;
+		else Jumppc = pc + imm;
 	endfunction
 
 	function Flag;
