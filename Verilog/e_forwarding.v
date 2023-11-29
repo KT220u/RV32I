@@ -12,7 +12,8 @@ module e_forwarding(rs1E, rs2E, source1E, source2E, rdM, resultM, rdW, distW, re
 	output [31:0] reg_data1E, reg_data2E;
 
 	// とりあえず
-	assign reg_data1E = (rs1E == rdM & rdM != 5'd0 & reg_writeM & mem_loadM == 3'b000) ? resultM : (rs1E == rdW & rdW != 5'd0 & reg_writeW) ? distW : source1E;
-//	assign reg_data1E = (rs1E == rdM & rdM != 5'd0 & reg_writeM & mem_loadM == 3'b000) ? 32'd10 : (rs1E == rdW & rdW != 5'd0 & reg_writeW) ? 32'd20 : 32'd30;
-	assign reg_data2E = (rs2E == rdM & rdM != 5'd0 & reg_writeM & mem_loadM == 3'b000) ? resultM : (rs2E == rdW & rdW != 5'd0 & reg_writeW) ? distW : source2E;
+	assign reg_data1E = (rs1E == rdM & rdM != 5'd0 & reg_writeM & mem_loadM == 3'b000) ? resultM : 
+						(rs1E == rdW & rdW != 5'd0 & reg_writeW) ? distW : source1E;
+	assign reg_data2E = (rs2E == rdM & rdM != 5'd0 & reg_writeM & mem_loadM == 3'b000) ? resultM : 
+						(rs2E == rdW & rdW != 5'd0 & reg_writeW) ? distW : source2E;
 endmodule

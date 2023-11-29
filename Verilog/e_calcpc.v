@@ -23,12 +23,20 @@ module e_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_c
 	wire flag;
 	
 	assign fail_predict = (nextpc == pc_predicted | !cannot_calcpc) ? 1'b0 : 1'b1;
-	assign flag = Flag(branch_code, reg_data1, reg_data2);
-	
+	//assign flag = Flag(branch_code, reg_data1, reg_data2);
+
+	assign nextpc = (((branch_code == 3'b000) & (reg_data1 == reg_data2)) |
+				  ((branch_code == 3'b001) & (reg_data1 != reg_data2)) |
+				  ((branch_code == 3'b100) & ($signed(reg_data1) < $signed(reg_data2))) |
+				  ((branch_code == 3'b101) & ($signed(reg_data1) >= $signed(reg_data2))) |
+				  ((branch_code == 3'b110) & (reg_data1 < reg_data2)) | 
+				  ((branch_code == 3'b111) & (reg_data1 >= reg_data2)) |
+				  (jump_code[1])) ? jumppc : pc + 13'b1;
+
 	// branch & flag | jal : pc + imm
 	// jalr : imm + reg_data1
 	assign jumppc = imm[14:2] + ((jump_code == 2'b11) ? reg_data1[14:2] : pc);
-	assign nextpc = (flag | jump_code[1]) ? jumppc : pc + 13'b1;
+	//assign nextpc = (flag | jump_code[1]) ? jumppc : pc + 13'b1;
 
 	// 分岐予測キャッシュに書き込み
 	output [15:0] w_data;
@@ -48,7 +56,7 @@ module e_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_c
 		if(jump_code == 2'b11) Jumppc = reg_data1 + imm;
 		else Jumppc = pc + imm;
 	endfunction
-
+/*
 	function Flag;
 		input [2:0] branch_code;
 		input [31:0] reg_data1, reg_data2;
@@ -68,5 +76,6 @@ module e_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_c
 			Flag = 1'b0;
 		end
 	endfunction
+*/
 endmodule
 
