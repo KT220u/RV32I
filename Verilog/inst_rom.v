@@ -30,13 +30,12 @@ module inst_rom(CLK, NRST, prepc, nextpc, pc, inst, stall, hit_predict, fail_pre
 	// 分岐キャッシュヒット時　
 	// 分岐キャッシュミス時　PC+4
 	
+	wire [12:0] PC;
+	assign PC = (stall) ? pc : (fail_predict) ? nextpc : (hit_predict) ? prepc : pc + 13'd1;
 
 	always @(posedge CLK) begin
 		if(!NRST) pc <= startpc;
-		else if(stall) pc <= pc;
-		else if(fail_predict) pc <= nextpc;
-		else if(hit_predict) pc <= prepc;
-		else pc <= pc + 13'd1;
+		else pc <= PC;
 	end
 
 	inst_rom_block inst_rom_block(CLK, pc[12:0], inst);		//pcの下２ビットは除く

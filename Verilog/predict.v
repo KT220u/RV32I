@@ -50,17 +50,24 @@ endmodule
 module cache(CLK, r_addr, r_data, w_addr, w_data, wen);
 	input CLK;
 	input [10:0] r_addr, w_addr;
-	output [15:0] r_data;
+	output reg [15:0] r_data;
 	input [15:0] w_data;
 	input wen;
-	
+
 	always @(posedge CLK) begin
 		if(wen) begin
 			mem[w_addr] <= w_data;
 		end
 	end
-	assign r_data = mem[r_addr];
 
+	always @(negedge CLK) begin
+		r_data <= mem[r_addr];
+	end
+	
 	reg [15:0] mem [0:2047];
+
+	initial begin
+		$readmemb("/home/denjo/RV32I/Verilog/cache.hex", mem);
+	end
 endmodule
 
