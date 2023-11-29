@@ -23,9 +23,12 @@ module e_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_c
 	wire flag;
 	
 	assign fail_predict = (nextpc == pc_predicted | !cannot_calcpc) ? 1'b0 : 1'b1;
-	assign flag = Flag(branch_code, reg_data1, reg_data2) | jump_code[1];
-	assign jumppc = Jumppc(pc, reg_data1[14:2], imm[14:2], jump_code);
-	assign nextpc = (flag) ? jumppc : pc + 13'b1;
+	assign flag = Flag(branch_code, reg_data1, reg_data2);
+	
+	// branch & flag | jal : pc + imm
+	// jalr : imm + reg_data1
+	assign jumppc = imm[14:2] + ((jump_code == 2'b11) ? reg_data1[14:2] : pc);
+	assign nextpc = (flag | jump_code[1]) ? jumppc : pc + 13'b1;
 
 	// 分岐予測キャッシュに書き込み
 	output [15:0] w_data;
@@ -43,7 +46,6 @@ module e_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_c
 		input [12:0] pc, reg_data1, imm;
 		input [1:0] jump_code;
 		if(jump_code == 2'b11) Jumppc = reg_data1 + imm;
-		else if(jump_code == 2'b10) Jumppc = pc + imm;
 		else Jumppc = pc + imm;
 	endfunction
 
