@@ -71,7 +71,7 @@ module top(sysclk, cpu_resetn,  led, uart_tx);
 	regfile regfile(.CLK(CLK), .rs1(rs1D), .rs2(rs2D), .source1(source1D), .source2(source2D), 
 					.rd(rdM), .dist1(distM), .reg_write(reg_writeM));
 
-	d_calcpc d_calcpc(.pc(pcD), .pc_predicted(pcF), .imm(immD), .reg_data1(reg_data1D), .reg_data2(reg_data2D),
+	d_calcpc d_calcpc(.pc(pcD), .pc_predicted(pcF), .imm(immD), .reg_data1(reg_data1D),
 					  .jump_code(jump_codeD), .branch_code(branch_codeD), 
 					  .nextpc(nextpcD), .cannot_calcpc(cannot_calcpcD), .fail_predict(fail_predictD));
 

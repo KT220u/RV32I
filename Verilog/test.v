@@ -35,7 +35,7 @@ module test;
 
 /*
 	always begin
-		#10 $display("%b, %h, %h,  %h, %h, %h, %h, %h, %h, %h, %h, %h", CLK, top.pcF, top.pcD, top.pcE, top.pcM, top.stall, top.fail_predictD, top.fail_predictE, top.cannot_calcpcD, top.cannot_calcpcE, top.predict.r_data, top.hit_predict);
+		#10 $display("%b, %h, %h,  %h, %h, %h, %h, %h, %h, %h, %h, %h, %h, %h", CLK, top.pcF, top.pcD, top.pcE, top.pcM, top.stall, top.fail_predictD, top.fail_predictE, top.cannot_calcpcD, top.cannot_calcpcE, top.predict.r_data, top.hit_predict, top.d_calcpc.nextpc, top.d_calcpc.reg_data1);
 	end
 */
 
