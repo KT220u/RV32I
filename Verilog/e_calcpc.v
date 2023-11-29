@@ -1,6 +1,6 @@
 `include "define.vh"
 
-module e_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_code, nextpc, jumppc, cannot_calcpc, fail_predict);
+module e_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_code, nextpc, jumppc, cannot_calcpc, fail_predict, w_data, w_addr, wen);
 	input [12:0] pc;
 	
 	// 予測したPC、nextpcの結果と後で比較する
@@ -22,11 +22,20 @@ module e_calcpc(pc, pc_predicted, imm, reg_data1, reg_data2, jump_code, branch_c
 	// jal or jalr or branch条件を満たす
 	wire flag;
 	
-
 	assign fail_predict = (nextpc == pc_predicted | !cannot_calcpc) ? 1'b0 : 1'b1;
 	assign flag = Flag(branch_code, reg_data1, reg_data2) | jump_code[1];
 	assign jumppc = Jumppc(pc, reg_data1[14:2], imm[14:2], jump_code);
 	assign nextpc = (flag) ? jumppc : pc + 13'b1;
+
+	// 分岐予測キャッシュに書き込み
+	output [15:0] w_data;
+	output [10:0] w_addr;
+	output wen;
+
+	assign w_data = {1'b1, pc[12:11], jumppc};
+	assign w_addr = pc[10:0];
+	assign wen = (jump_code >= 2'b01) ? 1'b1 : 1'b0;
+
 
 	// jump_codeに応じて、分岐時のPCを計算する。
 	// 実際に分岐するPC(Nextpc)とは異なる。

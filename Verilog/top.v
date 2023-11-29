@@ -29,9 +29,13 @@ module top(sysclk, cpu_resetn,  led, uart_tx);
 	wire [31:0] source1D, source1E, source2D, source2E;
 	wire [31:0] distM, distW;
 	wire [31:0] store_dataE, store_dataM;
-	
 
-	// control signal
+	// 分岐予測キャッシュ書き込み
+	wire [15:0] predict_w_data;
+	wire [10:0] predict_w_addr;
+	wire predict_wen;
+
+	// 制御信号
 	wire [5:0] alu_codeD, alu_codeE;
 	wire alu_srcD, alu_srcE;
 	wire [1:0] jump_codeD, jump_codeE;
@@ -73,14 +77,16 @@ module top(sysclk, cpu_resetn,  led, uart_tx);
 
 	e_calcpc e_calcpc(.pc(pcE), .pc_predicted(pcD), .imm(immE), .reg_data1(reg_data1E), .reg_data2(reg_data2E),
 					  .jump_code(jump_codeE), .branch_code(branch_codeE), 
-					  .nextpc(nextpcE), .jumppc(jumppcE), .cannot_calcpc(cannot_calcpcE), .fail_predict(fail_predictE));
+					  .nextpc(nextpcE), .jumppc(jumppcE), .cannot_calcpc(cannot_calcpcE), .fail_predict(fail_predictE),
+					  .w_data(predict_w_data), .w_addr(predict_w_addr), .wen(predict_wen));
 
 	d_forwarding  d_forwarding(.rs1D(rs1D), .rs2D(rs2D), .source1D(source1D), .source2D(source2D), .rdE(rdE), .rdM(rdM), .resultM(resultM), .reg_writeE(reg_writeE), .mem_loadE(mem_loadE), .reg_writeM(reg_writeM), .mem_loadM(mem_loadM), .reg_data1D(reg_data1D), .reg_data2D(reg_data2D), .jump_code(jump_codeD), .cannot_calcpc(cannot_calcpcD), .stall(stall));
 	
 	predict predict(.CLK(CLK), .pcF(pcF), .prepc(prepc), .hit_predict(hit_predict), 
 			.pcD(pcD), .nextpcD(nextpcD), .fail_predictD(fail_predictD), 
 			.pcE(pcE), .nextpcE(nextpcE), .fail_predictE(fail_predictE),
-			.nextpc(nextpc), .fail_predict(fail_predict));
+			.nextpc(nextpc), .fail_predict(fail_predict),
+			.w_data(predict_w_data), .w_addr(predict_w_addr), .wen(predict_wen));
 
 	alu alu(CLK, pcE, alu_codeE, alu_srcE, reg_data1E, reg_data2E, immE, resultE);
 	e_forwarding e_forwarding(rs1E, rs2E, source1E, source2E, rdM, resultM, rdW, distW, reg_writeM, mem_loadM, reg_writeW, reg_data1E, reg_data2E);

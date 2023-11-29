@@ -1,8 +1,9 @@
-module predict(CLK, pcF, prepc, hit_predict, pcD, nextpcD, fail_predictD, pcE, nextpcE, fail_predictE, nextpc, fail_predict);
+module predict(CLK, pcF, prepc, hit_predict, pcD, nextpcD, fail_predictD, pcE, nextpcE, fail_predictE, nextpc, fail_predict, w_data, w_addr, wen);
 	input CLK;
 	input [12:0] pcF;
 	output [12:0] prepc;
 	output hit_predict;
+
 	input [12:0] pcD, nextpcD;
 	input fail_predictD;
 	input [12:0] pcE, nextpcE;
@@ -30,18 +31,10 @@ module predict(CLK, pcF, prepc, hit_predict, pcD, nextpcD, fail_predictD, pcE, n
 	assign hit_predict = (r_data[15] & r_data[14:13] == tag) ? 1'b1 : 1'b0;
 	assign prepc = r_data[12:0];
 	
-	// Dステージ、またはEステージで予測ミスが発覚したら、その分岐先結果をキャッシュに書き込む
-	wire [10:0] w_addr;
-	wire [15:0] w_data;
-	wire wen;
-	wire [12:0] new_pc;
-	wire [12:0] new_nextpc;
-	
-	assign new_pc = (fail_predictD) ? pcD : pcE;
-	assign new_nextpc = (fail_predictD) ? nextpcD : nextpcE;
-	assign w_addr = new_pc[10:0];
-	assign w_data = {1'b1, new_pc[12:11], new_nextpc};
-	assign wen = fail_predictD | fail_predictE;
+	// e_calcpc で計算されたデータを書き込む
+	input [10:0] w_addr;
+	input [15:0] w_data;
+	input wen;
 
 	cache cache(CLK, r_addr, r_data, w_addr, w_data, wen);
 
