@@ -1,0 +1,7 @@
+CPI計算式
+tics / iterations / 728700 = 1.25
+
+Clock : 80 MHz
+
+５段分岐予測では、DステージのPC計算がクリティカルパスとなっていた
+	branch の計算はEでさせる
