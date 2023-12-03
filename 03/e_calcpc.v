@@ -14,7 +14,7 @@ module e_calcpc(branch_number, pc, pc_predicted, imm, reg_data11, reg_data21, re
 	output [12:0] true_pc;
 	
 	// 分岐予測ミス
-	output fail_predict;
+	output [1:0] fail_predict;
 	
 	// jal or jalr or branch条件を満たす
 	wire [12:0] jump_pc;
@@ -24,7 +24,8 @@ module e_calcpc(branch_number, pc, pc_predicted, imm, reg_data11, reg_data21, re
 	assign reg_data2 = (branch_number[1]) ? reg_data22 : reg_data21;
 
 	// PCが一致しない、かつ、jalr / branch (jump_code == 11 / 01)
-	assign fail_predict = (true_pc != pc_predicted & jump_code[0]);
+	assign fail_predict[0] = (true_pc != pc_predicted & jump_code[0]);
+	assign fail_predict[1] = fail_predict[0] & branch_number[0];
 	assign flag = Flag(branch_code, reg_data1, reg_data2);
 	assign true_pc = (flag | jump_code[1]) ? jump_pc : pc + 13'd1;
 

@@ -9,10 +9,13 @@ module fc_reg(CLK, NRST, pcF, instF, pcC, instC, stall, fail_predict);
 	input fail_predict;
 
 	always @(posedge CLK) begin
-		pcC <= pcF;
-		if(!NRST | fail_predict) instC <= 32'd0;
-		else instC <= (stall) ? instC : instF;
-
+		if(!NRST | fail_predict) begin
+			instC <= 32'd0;
+			pcC <= 13'd0;
+		end else begin
+			instC <= (stall) ? instC : instF;
+			pcC <= (stall) ? pcC : pcF;
+		end
 	end
 endmodule
 		

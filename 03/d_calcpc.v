@@ -27,8 +27,9 @@ module d_calcpc(branch_number, pc1, pc2, pc_predicted, imm1, imm2, jump_code1, j
 	assign true_pc = pc + imm;
 
 	// 分岐予測ミス
-	output fail_predict;
-	assign fail_predict = (true_pc != pc_predicted & jump_code == 2'b10);
+	output [1:0] fail_predict;
+	assign fail_predict[0] = (true_pc != pc_predicted & jump_code == 2'b10);
+	assign fail_predict[1] = fail_predict[0] & branch_number[0];
 	
 endmodule
 
