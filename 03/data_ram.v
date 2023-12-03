@@ -16,6 +16,8 @@ module data_ram(CLK, NRST, resultE1, resultE2, resultM1, resultM2, Source1, Sour
 	wire [31:0] store_data; // offset に応じて、書き込むデータをシフトさせる
 	wire [3:0] store_flag; // ４バイトのどこに書き込むか
 
+	// どちらか一方の命令はストアの可能性があるので、それを判定する。
+	// 両方ストアの場合は、Cステージで除外されている。
 	assign resultM = (mem_store1 >= 2'b01) ? resultM1 : resultM2;
 	assign Source = (mem_store1 >= 2'b01) ? Source1 : Source2;
 	assign mem_store = mem_store1 | mem_store2; // どちらかは０なので、ORをとればOK

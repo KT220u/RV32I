@@ -1,4 +1,4 @@
-module inst_rom(CLK, NRST, pc1, pc2, inst1, inst2, stall, fail_predict, hit_predict, is_depend);
+module inst_rom(CLK, NRST, pc1, pc2, inst1, inst2, stall, fail_predictD, true_pcD, fail_predictE, true_pcE, hit_predict, is_depend);
 	input CLK, NRST;
 	output [12:0] pc1, pc2;
 	output [31:0] inst1, inst2;
@@ -7,7 +7,9 @@ module inst_rom(CLK, NRST, pc1, pc2, inst1, inst2, stall, fail_predict, hit_pred
 	assign pc2 = pc + 13'd1;
 
 	input stall;
-	input fail_predict;
+	input fail_predictD, fail_predictE;
+	input [12:0] true_pcD, true_pcE;
+
 	input hit_predict;
 	input is_depend;
 
@@ -23,7 +25,8 @@ module inst_rom(CLK, NRST, pc1, pc2, inst1, inst2, stall, fail_predict, hit_pred
 	reg [12:0] pc;
 	wire [12:0] PC;
 	assign PC = (stall) ? pc : 
-				//(fail_predict) ? true_pc :
+				(fail_predictE) ? true_pcE :
+				(fail_predictD) ? true_pcD :
 				//(hit_predict) ? pre_pc :
 				(is_depend) ? pc + 13'd1 :
 				pc + 13'd2;

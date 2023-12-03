@@ -1,6 +1,6 @@
 //alu alu1(CLK, pcE1, alu_codeE1, alu_srcE1, reg_data1E1, reg_data2E1, immE1, resultE1);
 module de_reg(CLK, pcD, instD, alu_codeD, alu_srcD, reg_data1D, reg_data2D, immD, rs1D, rs2D, rdD, mem_storeD, mem_loadD, reg_writeD,
-			  pcE, instE, alu_codeE, alu_srcE, reg_data1E, reg_data2E, immE, rs1E, rs2E, rdE, mem_storeE, mem_loadE, reg_writeE, stall);
+			  pcE, instE, alu_codeE, alu_srcE, reg_data1E, reg_data2E, immE, rs1E, rs2E, rdE, mem_storeE, mem_loadE, reg_writeE, stall, fail_predict);
 	input CLK;
 	input [12:0] pcD;
 	input [31:0] instD;
@@ -25,9 +25,10 @@ module de_reg(CLK, pcD, instD, alu_codeD, alu_srcD, reg_data1D, reg_data2D, immD
 	output reg reg_writeE;
 
 	input stall;
+	input fail_predict;
 
 	always @(posedge CLK) begin
-		if(stall) begin
+		if(stall | fail_predict) begin
 			pcE <= 13'd0;
 			instE <= 32'd0;
 			alu_codeE <= 6'd0;

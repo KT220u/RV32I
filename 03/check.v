@@ -3,22 +3,24 @@
 // 1. inst1 が分岐命令
 // 2. inst1 が reg_write かつ inst1 rd = inst2 rs1/rs2
 // 3. inst1, inst2 ともにストア命令
-module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, inst1_out, inst2_out, is_depend, inst_numberD, stall);
+module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, inst1_out, inst2_out, is_depend, branch_numberD, stall, fail_predict);
 	input CLK, NRST;
 	input [12:0] pc1_in, pc2_in;
 	input [31:0] inst1_in, inst2_in;
 	output [12:0] pc1_out, pc2_out;
 	output [31:0] inst1_out, inst2_out;
 	output is_depend;
-	output reg inst_numberD;
+	output reg [1:0] branch_numberD; // 01 : inst1 が分岐命令、10 : inst2 が分岐命令、00 : ともに分岐命令でない
+									 // posedge CLK で、Dステージの d_calcpc に伝える。
 	input stall;
+	input fail_predict;
 
 	wire [31:0] inst1, inst2;
 	wire [12:0] pc1, pc2;
 	reg [31:0] inst2_buffer;
 	reg [12:0] pc2_buffer;
 	reg was_depend;
-	wire inst_numberC;
+	wire [1:0] branch_numberC;
 
 	// was_depend : １つ前のサイクルで依存があった
 	// １つ前の inst2 をこのサイクルでの inst1 にする
@@ -57,17 +59,22 @@ module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, in
 	assign is_depend = ((reg_write & rd != 5'd0 & ((use_rs1 & (rs1 == rd)) | (use_rs2 & (rs2 == rd)))) |
 						(branch) | 
 						(store1 & store2)) ? 1'b1 : 1'b0;
-	assign inst_numberC = !branch;
+	assign branch_numberC = opcode1[4] ? 2'b01 : opcode2[4] ? 2'b10 : 2'b00;
 
 	always @(posedge CLK) begin
-		if(!NRST) was_depend <= 1'b0;
-		else if(stall) was_depend <= was_depend;
-		else was_depend <= is_depend;
+		if(!NRST | fail_predict) begin
+			was_depend <= 1'b0;
+			branch_numberD <= 2'b00;
+		end else if(stall) begin
+			was_depend <= was_depend;
+			branch_numberD <= branch_numberD;
+		end else begin
+			was_depend <= is_depend;
+			branch_numberD <= branch_numberC;
+		end
 
 		inst2_buffer <= inst2;
 		pc2_buffer <= pc2;
-
-		inst_numberD <= inst_numberC;
 	end
 
 endmodule
