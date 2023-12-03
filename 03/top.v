@@ -83,15 +83,15 @@ module top(CLK, NRST);
 	cd_reg cd_reg1(CLK, pc1_out, inst1_out, pcD1, instD1, stall, fail_predict[0]);
 	cd_reg cd_reg2(CLK, pc2_out, inst2_out, pcD2, instD2, stall, fail_predict[0]);
 	de_reg de_reg1(CLK, pcD1, instD1, alu_codeD1, alu_srcD1, source1D1, source2D1, immD1, rs1D1, rs2D1, rdD1, mem_storeD1, mem_loadD1, reg_writeD1,
-			  	pcE1, instE1, alu_codeE1, alu_srcE1, source1E1, source2E1, immE1, rs1E1, rs2E1, rdE1, mem_storeE1, mem_loadE1, reg_writeE1, stall, fail_predict[1]);	// inst2 の予測失敗は影響しない
+			  	pcE1, instE1, alu_codeE1, alu_srcE1, source1E1, source2E1, immE1, rs1E1, rs2E1, rdE1, mem_storeE1, mem_loadE1, reg_writeE1, stall, fail_predictE[1]);	// inst2 の予測失敗は影響しない
 	de_reg de_reg2(CLK, pcD2, instD2, alu_codeD2, alu_srcD2, source1D2, source2D2, immD2, rs1D2, rs2D2, rdD2, mem_storeD2, mem_loadD2, reg_writeD2,
-			    pcE2, instE2, alu_codeE2, alu_srcE2, source1E2, source2E2, immE2, rs1E2, rs2E2, rdE2, mem_storeE2, mem_loadE2, reg_writeE2, stall, fail_predict[0]);    // inst2 の予測失敗は影響する。
+			    pcE2, instE2, alu_codeE2, alu_srcE2, source1E2, source2E2, immE2, rs1E2, rs2E2, rdE2, mem_storeE2, mem_loadE2, reg_writeE2, stall, fail_predictE[0]);    // inst2 の予測失敗は影響する。
 	de_reg_calcpc de_reg_calcpc(CLK, NRST, branch_numberD, pcDj, immDj, jump_codeDj, branch_codeDj,
-							 branch_numberE, pcEj, immEj, jump_codeEj, branch_codeEj, stall, fail_predict[0]);
+							 branch_numberE, pcEj, immEj, jump_codeEj, branch_codeEj, stall, fail_predictE[0]);
 	em_reg em_reg1(CLK, pcE1, instE1, rdE1, resultE1, reg_data2E1, mem_storeE1, mem_loadE1, reg_writeE1,
-				pcM1, instM1, rdM1, resultM1, reg_data2M1, mem_storeM1, mem_loadM1, reg_writeM1, fail_predictE[1]);
+				pcM1, instM1, rdM1, resultM1, reg_data2M1, mem_storeM1, mem_loadM1, reg_writeM1);
 	em_reg em_reg2(CLK, pcE2, instE2, rdE2, resultE2, reg_data2E2, mem_storeE2, mem_loadE2, reg_writeE2,
-				pcM2, instM2, rdM2, resultM2, reg_data2M2, mem_storeM2, mem_loadM2, reg_writeM2, fail_predictE[0]);
+				pcM2, instM2, rdM2, resultM2, reg_data2M2, mem_storeM2, mem_loadM2, reg_writeM2);
 	mw_reg mw_reg1(CLK, NRST, rdM1, distM1, reg_writeM1, rdW1, distW1, reg_writeW1);
 	mw_reg mw_reg2(CLK, NRST, rdM2, distM2, reg_writeM2, rdW2, distW2, reg_writeW2);
 

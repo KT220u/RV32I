@@ -1,5 +1,10 @@
 `include "define.vh"
 
+// 2つの命令の関係性
+// 1. ２つともSTORE : Cステージで検出し、2つ目を１サイクル遅らせてある。
+// 2. 同じアドレスに対して、１つ目がLOAD、２つ目がSTORE : タイミング的に問題ない
+// 3. 同じアドレスに対して、１つ目がSTORE、２つ目がLOAD : このモジュール内で解決するための仕組みが必要
+
 module data_ram(CLK, NRST, resultE1, resultE2, resultM1, resultM2, Source1, Source2, Dist1, Dist2, mem_store1, mem_store2, mem_load1, mem_load2, hc_OUT_data);
 	input CLK, NRST;
 	input [31:0] resultE1, resultE2, resultM1, resultM2;	// ALUの結果
@@ -44,10 +49,13 @@ module data_ram(CLK, NRST, resultE1, resultE2, resultM1, resultM2, Source1, Sour
 		resultM_before <= resultM;
 	end
 
-	// １つ前のストア命令の結果はメモリにはまだ書かれていないので、バッファから読み込む
+	// load_after_store : １つ前のストア命令の結果はメモリにはまだ書かれていないので、バッファから読み込む
+	// store_and_load : １つ目がSTORE、２つ目がLOADのときは、１つ目の Source をそのまま r_data とする。
+	// アドレスをもとに読み込んできたものが r_data1, r_data2 で、これに上の２つのケースを考慮した読み込みデータが
+	// r_data1_ture, r_data2_true である。
 	assign load_after_store = resultM_before[15:2] == resultM[15:2] & mem_store_before >= 2'b01;
 	assign r_data1_true = (load_after_store) ? Source_before : r_data1; 
-	assign r_data2_true = (load_after_store) ? Source_before : r_data2; 
+	assign r_data2_true = (store_and_load) ? Source : (load_after_store) ? Source_before : r_data2; 
 
 	
 	assign Dist1 = (mem_load1 == 3'b001) ? ((offset1== 2'b00) ? {{24{r_data1_true[7]}}, r_data1_true[7:0]} :
