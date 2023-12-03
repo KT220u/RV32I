@@ -49,11 +49,13 @@ module test;
 
 		//$display("%h, %h", top.alu2.src1, top.alu2.src2);
 		//$display("%h, %h, %h, %h, %h", top.e_forwarding2.reg_data1E, top.e_forwarding2.source1E, top.e_forwarding2.rs1E, top.e_forwarding2.distW2, top.e_forwarding2.resultM1);
-		$display("%h, %h, %h, %h, %h, %h, %h", top.pcF1<<2, top.pc1_out<<2, top.pcD1<<2, top.pcE1<<2, top.pcM1<<2, top.fail_predictD<<2, top.fail_predictE<<2);
-		$display("%h, %h, %h, %h, %h, %h, %h", top.pcF2<<2, top.pc2_out<<2, top.pcD2<<2, top.pcE2<<2, top.pcM2<<2, top.fail_predictD<<2, top.fail_predictE<<2);
-		$display("%h, %h, %h", top.fail_predictD, top.fail_predictE, top.stall);
+//		$display("%h, %h, %h, %h, %h, %h, %h", top.pcF1<<2, top.pc1_out<<2, top.pcD1<<2, top.pcE1<<2, top.pcM1<<2, top.fail_predictD<<2, top.fail_predictE<<2);
+//		$display("%h, %h, %h, %h, %h, %h, %h", top.pcF2<<2, top.pc2_out<<2, top.pcD2<<2, top.pcE2<<2, top.pcM2<<2, top.fail_predictD<<2, top.fail_predictE<<2);
+//		$display("%h, %h, %h", top.fail_predictD, top.fail_predictE, top.stall);
 //		$display("%h, %h, %h, %h", top.pc2_out, top.pcD2, top.pcE2, top.pcM2);
 //		$display("%h, %h, %h, %h, %h, %h, %h", top.d_calcpc.pc_predicted, top.d_calcpc.true_pc, top.e_calcpc.pc_predicted, top.e_calcpc.true_pc, top.e_calcpc.jump_pc, top.e_calcpc.reg_data1, top.e_calcpc.imm);
+	 	$display("%h", top.data_ram.data_ram_block.mem[4096]);
+//		$display("%h, %h, %h, %h, %h, %h", top.data_ram.resultM, top.data_ram.resultM_before, top.data_ram.mem_store_before, top.data_ram.load_after_store1, top.data_ram.resultM1, top.data_ram.resultM2);
 		$display("-----------------------------------------------------------");
 	end
 
@@ -71,7 +73,7 @@ module test;
 		CLK <= 1;
 		NRST <= 0;
 		#70 NRST <= 1;
-		#1000 $finish;
+		#3000 $finish;
 	end
 
 	top top(CLK, NRST);

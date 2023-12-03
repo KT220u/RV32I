@@ -3,6 +3,7 @@
 // 1. inst1 が分岐命令
 // 2. inst1 が reg_write かつ inst1 rd = inst2 rs1/rs2
 // 3. inst1, inst2 ともにストア命令
+// 4. inst1 : STORE, inst2 : LOAD
 module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, inst1_out, inst2_out, is_depend, branch_numberD, stall, fail_predict);
 	input CLK, NRST;
 	input [12:0] pc1_in, pc2_in;
@@ -39,7 +40,7 @@ module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, in
 	wire branch;
 	wire reg_write;
 	wire use_rs1, use_rs2;
-	wire store1, store2;
+	wire store1, store2, load2;
 	wire [4:0] rs1, rs2, rd;
 	
 
@@ -52,13 +53,15 @@ module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, in
 	assign use_rs2 = ~opcode2[0] & opcode2[3];
 	assign store1 = ~opcode1[4] & opcode1[3] & ~opcode1[2];
 	assign store2 = ~opcode2[4] & opcode2[3] & ~opcode2[2];
+	assign load2 = ~opcode2[3] & ~opcode2[0];
 
 	assign rs1 = inst2[19:15];
 	assign rs2 = inst2[24:20];
 	assign rd = inst1[11:7];
 	assign is_depend = ((reg_write & rd != 5'd0 & ((use_rs1 & (rs1 == rd)) | (use_rs2 & (rs2 == rd)))) |
 						(branch) | 
-						(store1 & store2)) ? 1'b1 : 1'b0;
+						(store1 & store2) | 
+						(store1 & load2)) ? 1'b1 : 1'b0;
 	assign branch_numberC = opcode1[4] ? 2'b01 : opcode2[4] ? 2'b10 : 2'b00;
 
 	always @(posedge CLK) begin
