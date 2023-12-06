@@ -1,10 +1,11 @@
 // negedge CLK で、pc1, pc2 から hit_predict1, hit_predict2, pre_pc1, pre_pc2 を出力する。
 // posedge CLK で、Eステージの e_calcpc から、w_data を書き込む
 // 常に分岐する予測
-module predict(CLK, pc1, pc2, hit_predict1, hit_predict2, pre_pc1, pre_pc2, w_data, w_addr, wen);
+module predict(CLK, pc1, pc2, hit_predict1, hit_predict2, state1, state2, pre_pc1, pre_pc2, w_data, w_addr, wen);
 	input CLK;
 	input [12:0] pc1, pc2;
 	output hit_predict1, hit_predict2;
+	output [1:0] state1, state2;
 	output [12:0] pre_pc1, pre_pc2;
 	
 	// e_calcpc で計算されたデータを書き込む
@@ -23,11 +24,13 @@ module predict(CLK, pc1, pc2, hit_predict1, hit_predict2, pre_pc1, pre_pc2, w_da
 	
 	// 予測結果の読み出し
 	assign tag1 = pc1[12:11];
+	assign state1 = r_data1[16:15];
 	assign r_addr1 = pc1[10:0];
 	assign hit_predict1 = r_data1[17] & (r_data1[16:15] >= 2'b10) & (r_data1[14:13] == tag1);
 	assign pre_pc1 = r_data1[12:0];
 	
 	assign tag2 = pc2[12:11];	
+	assign state2 = r_data2[16:15];
 	assign r_addr2 = pc2[10:0];
 	assign hit_predict2 = r_data2[17] & (r_data2[16:15] >= 2'b10) & (r_data2[14:13] == tag2);
 	assign pre_pc2 = r_data2[12:0];

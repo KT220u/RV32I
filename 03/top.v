@@ -102,7 +102,7 @@ module top(sysclk, cpu_resetn, uart_tx);
 									pcDj, reg_data1Dj, reg_data2Dj, immDj, jump_codeDj, branch_codeDj, stateDj, true_pcD, fail_predictD, cannot_calcpc);
 	e_calcpc e_calcpc(branch_numberE, pcEj, pcD1, immEj, reg_data1E1, reg_data2E1, reg_data1E2, reg_data2E2, 
 					  jump_codeEj, branch_codeEj, true_pcE, fail_predictE, stateEj, predict_w_data, predict_w_addr, predict_wen);	
-	predict predict(CLK, pcF1, pcF2, hit_predict1, hit_predict2, pre_pc1, pre_pc2, predict_w_data, predict_w_addr, predict_wen);
+	predict predict(CLK, pcF1, pcF2, hit_predict1, hit_predict2, stateF1, stateF2, pre_pc1, pre_pc2, predict_w_data, predict_w_addr, predict_wen);
 	
 	fc_reg fc_reg1(CLK, NRST, pcF1, instF1, stateF1, pc1_in, inst1_in, state1_in, stall, fail_predict, 1'b0);
 	fc_reg fc_reg2(CLK, NRST, pcF2, instF2, stateF2, pc2_in, inst2_in, state2_in, stall, fail_predict, hit_predict1);

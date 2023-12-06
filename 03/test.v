@@ -50,6 +50,10 @@ module test;
 		//$display("%h, %h, %h, %h, %h", top.e_forwarding2.reg_data1E, top.e_forwarding2.source1E, top.e_forwarding2.rs1E, top.e_forwarding2.distW2, top.e_forwarding2.resultM1);
 //		$display("%h, %h, %h, %h, %h, %h, %h, %h", top.pcF1<<2, top.check.pc1<<2, top.pc1_out<<2, top.pcD1<<2, top.pcE1<<2, top.pcM1<<2, top.fail_predictD, top.fail_predictE);
 //		$display("%h, %h, %h, %h, %h, %h, %h, %h", top.pcF2<<2, top.check.pc2<<2, top.pc2_out<<2, top.pcD2<<2, top.pcE2<<2, top.pcM2<<2, top.fail_predictD, top.fail_predictE);
+//		$display("%h, %h, %h, %h", top.hit_predict1, top.hit_predict2, top.predict.state1, top.predict.state2);
+//		$display("%h, %h, %h", top.e_calcpc.state, top.e_calcpc.new_state, top.e_calcpc.flag);
+//		$display("%h, %h, %h, %h, %h, %h", top.stateF1, top.state1_in, top.state1_out, top.stateD1, top.stateDj, top.stateEj);
+//		$display("%h, %h, %h, %h, %h, %h", top.stateF2, top.state2_in, top.state2_out, top.stateD2, top.stateDj, top.stateEj);
 //		$display("%h, %h", top.d_calcpc.jump_pc<<2, top.e_calcpc.jump_pc<<2);
 //		$display("%h, %h, %h, %h, %h",top.reg_data1D1, top.reg_data2D1, top.reg_data1D2, top.reg_data2D2, top.d_calcpc.true_pc<<2);
 //		$display("%h, %h, %h, %h, %h", top.reg_data1E1, top.reg_data2E1, top.reg_data1E2, top.reg_data2E2, top.e_calcpc.true_pc<<2);
@@ -74,7 +78,7 @@ module test;
 //		$display("%h, %h, %h, %h, %h, %h, %h", top.d_calcpc.pc_predicted, top.d_calcpc.true_pc, top.e_calcpc.pc_predicted, top.e_calcpc.true_pc, top.e_calcpc.jump_pc, top.e_calcpc.reg_data1, top.e_calcpc.imm);
 //	 	$display("%h", top.data_ram.data_ram_block.mem[4096]);
 //		$display("%h, %h, %h, %h, %h, %h", top.data_ram.resultM, top.data_ram.resultM_before, top.data_ram.mem_store_before, top.data_ram.load_after_store1, top.data_ram.resultM1, top.data_ram.resultM2);
-//		$display("-----------------------------------------------------------");
+	//	$display("-----------------------------------------------------------");
 	
 	end
 

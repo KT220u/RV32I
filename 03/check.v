@@ -87,16 +87,19 @@ module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, state1_in, state2_in
 			branch_numberD <= 2'b00;
 			inst2_buffer <= 32'd0;
 			pc2_buffer <= 13'd0;
+			state2_buffer <= 2'd0;
 		end else if(stall) begin
 			was_depend <= was_depend;
 			branch_numberD <= branch_numberD;
 			inst2_buffer <= inst2_buffer;
 			pc2_buffer <= pc2_buffer;
+			state2_buffer <= state2_buffer;
 		end else begin
 			was_depend <= is_depend;
 			branch_numberD <= branch_numberC;
 			inst2_buffer <= inst2;
 			pc2_buffer <= pc2;
+			state2_buffer <= state2;
 		end
 
 //		inst2_buffer <= inst2;
