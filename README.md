@@ -8,21 +8,21 @@ RV32I processor implementation with Verilog
 
 # 実行方法
 + 各ディレクトリ(01, 02, 03 )で
-'''
+```
 $ bash iverilog.sh
 $ ./a.out > result
-'''
+```
 として、トレースデータを得る。このデータは、ストールなどによるNOP命令も出力されているが、
-'''
+```
 $ python3 CutNop.py 
-'''
+```
 とすれば、NOP命令を削除した result2 ファイルが得られる。
 
 + 性能評価
-'''
+```
 $ verilator --cc top.v -exe test_bench.cpp
 $ make -C obj_dir/ -f Vtop.mk
 $ obj_dir/Vtop
-'''
+```
 と実行していくと、１０分ほどで出力が得られる。
 
