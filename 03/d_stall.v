@@ -3,8 +3,6 @@ module d_stall(rs1D1, rs2D1, rs1D2, rs2D2, rdE1, rdE2, reg_writeE1, reg_writeE2,
 	input reg_writeE1, reg_writeE2;
 	input [2:0] mem_loadE1, mem_loadE2;
 	
-	// １つ目の命令がデータハザード　→　全命令止める
-	// ２つ目の命令のみがデータハザード　→　１つ目の命令は実行を継続させる
 	output stall;
 
 	assign stall  = ((rs1D1 == rdE1 | rs2D1 == rdE1) & rdE1 != 5'd0 & reg_writeE1 & mem_loadE1 >= 3'b001) |

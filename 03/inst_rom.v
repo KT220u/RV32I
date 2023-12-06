@@ -1,4 +1,4 @@
-module inst_rom(CLK, NRST, pc1, pc2, inst1, inst2, stall, fail_predictD, true_pcD, fail_predictE, true_pcE, hit_predict, is_depend);
+module inst_rom(CLK, NRST, pc1, pc2, inst1, inst2, stall, fail_predictD, true_pcD, fail_predictE, true_pcE, hit_predict1, hit_predict2, pre_pc1, pre_pc2, is_depend);
 	input CLK, NRST;
 	output [12:0] pc1, pc2;
 	output [31:0] inst1, inst2;
@@ -10,7 +10,8 @@ module inst_rom(CLK, NRST, pc1, pc2, inst1, inst2, stall, fail_predictD, true_pc
 	input fail_predictD, fail_predictE;
 	input [12:0] true_pcD, true_pcE;
 
-	input hit_predict;
+	input hit_predict1, hit_predict2;
+	input [12:0] pre_pc1, pre_pc2;
 	input is_depend;
 
 	// PCの更新パターン
@@ -24,11 +25,15 @@ module inst_rom(CLK, NRST, pc1, pc2, inst1, inst2, stall, fail_predictD, true_pc
 
 	reg [12:0] pc;
 	wire [12:0] PC;
+
+	// PC更新の優先度順に注意
+	// 命令２が分岐ヒットしていても、Cステージで依存があれば、その予測PCはまだ利用しない
 	assign PC = (stall) ? pc : 
 				(fail_predictE) ? true_pcE :
 				(fail_predictD) ? true_pcD :
-				//(hit_predict) ? pre_pc :
+				(hit_predict1) ? pre_pc1 :
 				(is_depend) ? pc + 13'd1 :
+				(hit_predict2) ? pre_pc2 : 
 				pc + 13'd2;
 
 	always @(posedge CLK) begin

@@ -1,4 +1,4 @@
-module fc_reg(CLK, NRST, pcF, instF, pcC, instC, stall, fail_predict);
+module fc_reg(CLK, NRST, pcF, instF, pcC, instC, stall, fail_predict, hit_predict1);
 	input CLK;
 	input NRST;
 	input [12:0] pcF;
@@ -7,9 +7,10 @@ module fc_reg(CLK, NRST, pcF, instF, pcC, instC, stall, fail_predict);
 	output reg [31:0] instC;
 	input stall;
 	input fail_predict;
+	input hit_predict1;
 
 	always @(posedge CLK) begin
-		if(!NRST | fail_predict) begin
+		if(!NRST | fail_predict | (~stall & hit_predict1)) begin
 			instC <= 32'd0;
 			pcC <= 13'd0;
 		end else begin

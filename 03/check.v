@@ -4,7 +4,8 @@
 // 2. inst1 が reg_write かつ inst1 rd = inst2 rs1/rs2
 // 3. inst1, inst2 ともにストア命令
 // 4. inst1 : STORE, inst2 : LOAD
-module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, inst1_out, inst2_out, is_depend, branch_numberD, stall, fail_predict);
+// 5. Fステージで命令１が分岐キャッシュヒット（この場合、命令２を遅らせるのではなく破棄する）
+module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, inst1_out, inst2_out, is_depend, branch_numberD, stall, fail_predictD, fail_predictE, hit_predict1);
 	input CLK, NRST;
 	input [12:0] pc1_in, pc2_in;
 	input [31:0] inst1_in, inst2_in;
@@ -14,7 +15,8 @@ module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, in
 	output reg [1:0] branch_numberD; // 01 : inst1 が分岐命令、10 : inst2 が分岐命令、00 : ともに分岐命令でない
 									 // posedge CLK で、Dステージの d_calcpc に伝える。
 	input stall;
-	input fail_predict;
+	input fail_predictD, fail_predictE;
+	input hit_predict1;
 
 	wire [31:0] inst1, inst2;
 	wire [12:0] pc1, pc2;
@@ -49,7 +51,7 @@ module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, in
 
 	assign branch = opcode1[4];
 	assign reg_write = opcode1[0] | opcode1[2] | ~opcode1[3];
-	assign use_rs1 = ~opcode2[0] | (~opcode2[3] & ~opcode2[4]);
+	assign use_rs1 = ~opcode2[0] | (~opcode2[1] & ~opcode2[1]);
 	assign use_rs2 = ~opcode2[0] & opcode2[3];
 	assign store1 = ~opcode1[4] & opcode1[3] & ~opcode1[2];
 	assign store2 = ~opcode2[4] & opcode2[3] & ~opcode2[2];
@@ -61,23 +63,36 @@ module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, in
 	assign is_depend = ((reg_write & rd != 5'd0 & ((use_rs1 & (rs1 == rd)) | (use_rs2 & (rs2 == rd)))) |
 						(branch) | 
 						(store1 & store2) | 
-						(store1 & load2)) ? 1'b1 : 1'b0;
+						(store1 & load2)) 
+						? (inst2 != 32'd0) ? 1'b1 : 1'b0 : 1'b0;
 	assign branch_numberC = opcode1[4] ? 2'b01 : opcode2[4] ? 2'b10 : 2'b00;
 
+
+	// 更新のやり方
+	// 1, Eステージで予測ミス　：　ゼロリセット
+	// 2. ストール ：　値そのまま
+	// 3. Dステージで予測ミス　かつ　ストールでない　：　ゼロリセット
+	//		Dステージでストールが発生している場合、予測ミス判定の結果は正しくないため。
 	always @(posedge CLK) begin
-		if(!NRST | fail_predict) begin
+		if(!NRST | fail_predictE | (fail_predictD & ~stall)) begin
 			was_depend <= 1'b0;
 			branch_numberD <= 2'b00;
+			inst2_buffer <= 32'd0;
+			pc2_buffer <= 13'd0;
 		end else if(stall) begin
 			was_depend <= was_depend;
 			branch_numberD <= branch_numberD;
+			inst2_buffer <= inst2_buffer;
+			pc2_buffer <= pc2_buffer;
 		end else begin
 			was_depend <= is_depend;
 			branch_numberD <= branch_numberC;
+			inst2_buffer <= inst2;
+			pc2_buffer <= pc2;
 		end
 
-		inst2_buffer <= inst2;
-		pc2_buffer <= pc2;
+//		inst2_buffer <= inst2;
+//		pc2_buffer <= pc2;
 	end
 
 endmodule
