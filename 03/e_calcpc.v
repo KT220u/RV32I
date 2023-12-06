@@ -1,7 +1,7 @@
 `include "define.vh"
 //  d_calcpc(inst_number, pc, pc_predicted, imm1, imm2, jump_code1, jump_code2, branch_code1, branch_code2, imm, jump_code, branch_code, true_pc, fail_predict);
 
-module e_calcpc(branch_number, pc, pc_predicted, imm, reg_data11, reg_data21, reg_data12, reg_data22, jump_code, branch_code, true_pc, fail_predict, w_data, w_addr, wen);
+module e_calcpc(branch_number, pc, pc_predicted, imm, reg_data11, reg_data21, reg_data12, reg_data22, jump_code, branch_code, true_pc, fail_predict, state, w_data, w_addr, wen);
 	input [1:0] branch_number;
 	input [12:0] pc;
 	
@@ -35,11 +35,15 @@ module e_calcpc(branch_number, pc, pc_predicted, imm, reg_data11, reg_data21, re
 	assign jump_pc = imm + ((jump_code == 2'b11) ? reg_data1[14:2] : pc);
 
 	// 分岐予測キャッシュに書き込み
-	output [15:0] w_data;
+	input [1:0] state;
+	output [17:0] w_data;
 	output [10:0] w_addr;
 	output wen;
 
-	assign w_data = {1'b1, pc[12:11], jump_pc};
+	wire [1:0] new_state;
+	assign new_state = (flag | jump_code[1]) ? state + ((state == 2'b11) ? 2'b00 : 2'b01) : 
+											   state - ((state == 2'b00) ? 2'b00 : 2'b01);
+	assign w_data = {1'b1, new_state, pc[12:11], jump_pc};
 	assign w_addr = pc[10:0];
 	assign wen = (jump_code >= 2'b01) ? 1'b1 : 1'b0;
 

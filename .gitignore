@@ -1,14 +1,20 @@
 01/obj_dir
 01/a.out
 01/.Xil
+01/result
+01/result2
 
 02/obj_dir
 02/a.out
 02/.Xil
+02/result
+02/result2
 
 03/obj_dir
 03/a.out
 03/.Xil
+03/result
+03/result2
 
 VivadoProject*
 vivado*

@@ -36,9 +36,11 @@ module top(sysclk, cpu_resetn, uart_tx);
 
 	wire hit_predict1, hit_predict2;
 	wire [12:0] pre_pc1, pre_pc2;
-	wire [15:0] predict_w_data;
+	wire [17:0] predict_w_data;
 	wire [10:0] predict_w_addr;
 	wire predict_wen;
+	wire [1:0] stateF1, stateF2, state1_in, state2_in, state1_out, state2_out, stateD1, stateD2, stateDj, stateEj;
+
 
 // for test
 /*
@@ -79,7 +81,7 @@ module top(sysclk, cpu_resetn, uart_tx);
 
 
 	inst_rom inst_rom(CLK, NRST, pcF1, pcF2, instF1, instF2, stall, fail_predictD, true_pcD, fail_predictE, true_pcE, hit_predict1, hit_predict2, pre_pc1, pre_pc2, is_depend);
-	check check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, inst1_out, inst2_out, is_depend, branch_numberD, stall, fail_predictD, fail_predictE, hit_predict1);
+	check check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, state1_in, state2_in, pc1_out, pc2_out, inst1_out, inst2_out, state1_out, state2_out, is_depend, branch_numberD, stall, fail_predictD, fail_predictE, hit_predict1);
 	decoder decoder1(instD1, rs1D1, rs2D1, rdD1, immD1, alu_codeD1, alu_srcD1, reg_writeD1, mem_storeD1, mem_loadD1, jump_codeD1, branch_codeD1);
 	decoder decoder2(instD2, rs1D2, rs2D2, rdD2, immD2, alu_codeD2, alu_srcD2, reg_writeD2, mem_storeD2, mem_loadD2, jump_codeD2, branch_codeD2);
 	regfile regfile(CLK, rs1D1, rs2D1, rs1D2, rs2D2, source1D1, source2D1, source1D2, source2D2, rdM1, rdM2, distM1, distM2, reg_writeM1, reg_writeM2);
@@ -96,25 +98,25 @@ module top(sysclk, cpu_resetn, uart_tx);
 	e_forwarding e_forwarding2(rs1E2, rs2E2, source1E2, source2E2, rdM1, resultM1, rdW1, distW1, reg_writeM1, mem_loadM1, reg_writeW1, reg_data1E2, reg_data2E2,
 																rdM2, resultM2, rdW2, distW2, reg_writeM2, mem_loadM2, reg_writeW2);
 	
-	d_calcpc d_calcpc(branch_numberD, pcD1, pcD2, pc1_out, reg_data1D1, reg_data2D1, reg_data1D2, reg_data2D2, immD1, immD2, jump_codeD1, jump_codeD2, branch_codeD1, branch_codeD2, 
-									pcDj, reg_data1Dj, reg_data2Dj, immDj, jump_codeDj, branch_codeDj, true_pcD, fail_predictD, cannot_calcpc);
+	d_calcpc d_calcpc(branch_numberD, pcD1, pcD2, pc1_out, reg_data1D1, reg_data2D1, reg_data1D2, reg_data2D2, immD1, immD2, jump_codeD1, jump_codeD2, branch_codeD1, branch_codeD2, stateD1, stateD2, 
+									pcDj, reg_data1Dj, reg_data2Dj, immDj, jump_codeDj, branch_codeDj, stateDj, true_pcD, fail_predictD, cannot_calcpc);
 	e_calcpc e_calcpc(branch_numberE, pcEj, pcD1, immEj, reg_data1E1, reg_data2E1, reg_data1E2, reg_data2E2, 
-					  jump_codeEj, branch_codeEj, true_pcE, fail_predictE, predict_w_data, predict_w_addr, predict_wen);	
+					  jump_codeEj, branch_codeEj, true_pcE, fail_predictE, stateEj, predict_w_data, predict_w_addr, predict_wen);	
 	predict predict(CLK, pcF1, pcF2, hit_predict1, hit_predict2, pre_pc1, pre_pc2, predict_w_data, predict_w_addr, predict_wen);
 	
-	fc_reg fc_reg1(CLK, NRST, pcF1, instF1, pc1_in, inst1_in, stall, fail_predict, 1'b0);
-	fc_reg fc_reg2(CLK, NRST, pcF2, instF2, pc2_in, inst2_in, stall, fail_predict, hit_predict1);
+	fc_reg fc_reg1(CLK, NRST, pcF1, instF1, stateF1, pc1_in, inst1_in, state1_in, stall, fail_predict, 1'b0);
+	fc_reg fc_reg2(CLK, NRST, pcF2, instF2, stateF2, pc2_in, inst2_in, state2_in, stall, fail_predict, hit_predict1);
 
 	// Fステージで命令１が分岐キャッシュヒットした場合は、命令２を破棄する。
-	cd_reg cd_reg1(CLK, pc1_out, inst1_out, pcD1, instD1, stall, fail_predict);
-	cd_reg cd_reg2(CLK, pc2_out, inst2_out, pcD2, instD2, stall, fail_predict);
+	cd_reg cd_reg1(CLK, pc1_out, inst1_out, state1_out, pcD1, instD1, stateD1, stall, fail_predict);
+	cd_reg cd_reg2(CLK, pc2_out, inst2_out, state2_out, pcD2, instD2, stateD2, stall, fail_predict);
 	
 	de_reg de_reg1(CLK, pcD1, instD1, alu_codeD1, alu_srcD1, source1D1, source2D1, immD1, rs1D1, rs2D1, rdD1, mem_storeD1, mem_loadD1, reg_writeD1,
 			  	pcE1, instE1, alu_codeE1, alu_srcE1, source1E1, source2E1, immE1, rs1E1, rs2E1, rdE1, mem_storeE1, mem_loadE1, reg_writeE1, stall, fail_predictE);
 	de_reg de_reg2(CLK, pcD2, instD2, alu_codeD2, alu_srcD2, source1D2, source2D2, immD2, rs1D2, rs2D2, rdD2, mem_storeD2, mem_loadD2, reg_writeD2,
 			    pcE2, instE2, alu_codeE2, alu_srcE2, source1E2, source2E2, immE2, rs1E2, rs2E2, rdE2, mem_storeE2, mem_loadE2, reg_writeE2, stall, fail_predictE);
-	de_reg_calcpc de_reg_calcpc(CLK, NRST, branch_numberD, pcDj, reg_data1Dj, reg_data2Dj, immDj, jump_codeDj, branch_codeDj,
-							 branch_numberE, pcEj, reg_data1Ej, reg_data2Ej, immEj, jump_codeEj, branch_codeEj, stall, fail_predictE);
+	de_reg_calcpc de_reg_calcpc(CLK, NRST, branch_numberD, pcDj, reg_data1Dj, reg_data2Dj, immDj, jump_codeDj, branch_codeDj, stateDj,
+							 branch_numberE, pcEj, reg_data1Ej, reg_data2Ej, immEj, jump_codeEj, branch_codeEj, stateEj, stall, fail_predictE);
 
 	em_reg em_reg1(CLK, pcE1, instE1, rdE1, resultE1, reg_data2E1, mem_storeE1, mem_loadE1, reg_writeE1,
 				pcM1, instM1, rdM1, resultM1, reg_data2M1, mem_storeM1, mem_loadM1, reg_writeM1);

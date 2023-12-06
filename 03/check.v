@@ -5,12 +5,14 @@
 // 3. inst1, inst2 ともにストア命令
 // 4. inst1 : STORE, inst2 : LOAD
 // 5. Fステージで命令１が分岐キャッシュヒット（この場合、命令２を遅らせるのではなく破棄する）
-module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, inst1_out, inst2_out, is_depend, branch_numberD, stall, fail_predictD, fail_predictE, hit_predict1);
+module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, state1_in, state2_in, pc1_out, pc2_out, inst1_out, inst2_out, state1_out, state2_out, is_depend, branch_numberD, stall, fail_predictD, fail_predictE, hit_predict1);
 	input CLK, NRST;
 	input [12:0] pc1_in, pc2_in;
 	input [31:0] inst1_in, inst2_in;
+	input [1:0] state1_in, state2_in;
 	output [12:0] pc1_out, pc2_out;
 	output [31:0] inst1_out, inst2_out;
+	output [1:0] state1_out, state2_out;
 	output is_depend;
 	output reg [1:0] branch_numberD; // 01 : inst1 が分岐命令、10 : inst2 が分岐命令、00 : ともに分岐命令でない
 									 // posedge CLK で、Dステージの d_calcpc に伝える。
@@ -20,8 +22,10 @@ module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, in
 
 	wire [31:0] inst1, inst2;
 	wire [12:0] pc1, pc2;
+	wire [1:0] state1, state2;
 	reg [31:0] inst2_buffer;
 	reg [12:0] pc2_buffer;
+	reg [1:0] state2_buffer;
 	reg was_depend;
 	wire [1:0] branch_numberC;
 
@@ -31,11 +35,15 @@ module check(CLK, NRST, pc1_in, pc2_in, inst1_in, inst2_in, pc1_out, pc2_out, in
 	assign inst2 = (was_depend) ? inst1_in : inst2_in;
 	assign pc1 = (was_depend) ? pc2_buffer : pc1_in;
 	assign pc2 = (was_depend) ? pc1_in : pc2_in;
+	assign state1 = (was_depend) ? state2_buffer : state1_in;
+	assign state2 = (was_depend) ? state1_in : state2_in;
 
 	assign inst1_out = inst1;
 	assign inst2_out = (!is_depend) ? inst2 : 32'd0;
 	assign pc1_out = pc1;
 	assign pc2_out = (!is_depend) ? pc2 : 13'd0;
+	assign state1_out = state1;
+	assign state2_out = (!is_depend) ? state2 : 2'd0;
 
 
 	wire [4:0] opcode1, opcode2;	// opcode は上位５ビットで十分
