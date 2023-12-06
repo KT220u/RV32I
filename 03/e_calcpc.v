@@ -12,17 +12,19 @@ module e_calcpc(branch_number, pc, pc_predicted, imm, reg_data11, reg_data21, re
 	input [1:0] jump_code;
 	input [2:0] branch_code;
 	output [12:0] true_pc;
-	
+
+	wire [31:0] reg_data1, reg_data2;
+	assign reg_data1 = (branch_number[1]) ? reg_data12 : reg_data11;
+	assign reg_data2 = (branch_number[1]) ? reg_data22 : reg_data21;
+
 	// 分岐予測ミス
 	output fail_predict;
 	
 	// jal or jalr or branch条件を満たす
 	wire [12:0] jump_pc;
 	wire flag;
-	wire [31:0] reg_data1, reg_data2;
-	assign reg_data1 = (branch_number[1]) ? reg_data12 : reg_data11;
-	assign reg_data2 = (branch_number[1]) ? reg_data22 : reg_data21;
 
+	// jal 命令は、必ずDステージでPC計算が完了しているので、考えなくて良い
 	// PCが一致しない、かつ、jalr / branch (jump_code == 11 / 01)
 	assign fail_predict = (true_pc != pc_predicted & jump_code[0]);
 	assign flag = Flag(branch_code, reg_data1, reg_data2);

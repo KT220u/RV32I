@@ -1,14 +1,31 @@
-module d_stall(rs1D1, rs2D1, rs1D2, rs2D2, rdE1, rdE2, reg_writeE1, reg_writeE2, mem_loadE1, mem_loadE2, stall);
-	input [4:0] rs1D1, rs2D1, rs1D2, rs2D2, rdE1, rdE2;
+module d_stall(rs1D1, rs2D1, rs1D2, rs2D2, rdE1, rdE2, rdM1, rdM2, reg_writeE1, reg_writeE2, mem_loadE1,  mem_loadE2, mem_loadM1, mem_loadM2, branch_number, jump_codeD1, jump_codeD2, stall, cannot_calcpc);
+	input [4:0] rs1D1, rs2D1, rs1D2, rs2D2, rdE1, rdE2, rdM1, rdM2;
 	input reg_writeE1, reg_writeE2;
-	input [2:0] mem_loadE1, mem_loadE2;
+	input [2:0] mem_loadE1, mem_loadE2, mem_loadM1, mem_loadM2;
+	input [1:0] branch_number;
+	input [1:0] jump_codeD1, jump_codeD2;
 	
 	output stall;
+	output cannot_calcpc;
 
+	// ストールの条件　：　１つ前のステージがLOAD命令
 	assign stall  = ((rs1D1 == rdE1 | rs2D1 == rdE1) & rdE1 != 5'd0 & reg_writeE1 & mem_loadE1 >= 3'b001) |
 					((rs1D1 == rdE2 | rs2D1 == rdE2) & rdE2 != 5'd0 & reg_writeE2 & mem_loadE2 >= 3'b001) |
 					((rs1D2 == rdE1 | rs2D2 == rdE1) & rdE1 != 5'd0 & reg_writeE1 & mem_loadE1 >= 3'b001) | 
 					((rs1D2 == rdE2 | rs2D2 == rdE2) & rdE2 != 5'd0 & reg_writeE2 & mem_loadE2 >= 3'b001); 
+
+	// DステージでPC計算ができない条件
+	// 1. jalr 
+		// 1.1 rs1D == rdE
+		// 1.2 rs1D == rdM & mem_loadM (LOADでなければフォワーディングが可能）
+	// 2. branch
+		// 2.1 rs1D/rs2D == rdE
+		// 2.2 rs1D/rs2D == rdM & mem_loadM
+	assign cannot_calcpc = (branch_number[0] & (jump_codeD1 == 2'b11) & (rs1D1 == rdE1 | ((rs1D1 == rdM1) & mem_loadM1 >= 3'b001))) | 
+						   (branch_number[1] & (jump_codeD2 == 2'b11) & (rs1D2 == rdE2 | ((rs1D2 == rdM2) & mem_loadM2 >= 3'b001))) |
+						   (branch_number[0] & (jump_codeD1 == 2'b01) & (rs1D1 == rdE1 | rs2D1 == rdE1 | ((rs1D1 == rdM1 | rs2D1 == rdM1) & mem_loadM1 >= 3'b001))) | 
+						   (branch_number[1] & (jump_codeD2 == 2'b01) & (rs1D2 == rdE2 | rs2D2 == rdE2 | ((rs1D2 == rdM2 | rs2D2 == rdM2) & mem_loadM2 >= 3'b001)));
+
 endmodule
 /*
 module d_forwarding(rs1D, rs2D, source1D, source2D, rdE, rdM, resultM, reg_writeE, mem_loadE, reg_writeM, mem_loadM, reg_data1D, reg_data2D, jump_code,  cannot_calcpc, stall);
