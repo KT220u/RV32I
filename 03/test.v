@@ -48,8 +48,8 @@ module test;
 
 		//$display("%h, %h", top.alu2.src1, top.alu2.src2);
 		//$display("%h, %h, %h, %h, %h", top.e_forwarding2.reg_data1E, top.e_forwarding2.source1E, top.e_forwarding2.rs1E, top.e_forwarding2.distW2, top.e_forwarding2.resultM1);
-//		$display("%h, %h, %h, %h, %h, %h, %h, %h", top.pcF1<<2, top.check.pc1<<2, top.pc1_out<<2, top.pcD1<<2, top.pcE1<<2, top.pcM1<<2, top.fail_predictD, top.fail_predictE);
-//		$display("%h, %h, %h, %h, %h, %h, %h, %h", top.pcF2<<2, top.check.pc2<<2, top.pc2_out<<2, top.pcD2<<2, top.pcE2<<2, top.pcM2<<2, top.fail_predictD, top.fail_predictE);
+		$display("%h, %h, %h, %h, %h, %h, %h, %h", top.pcF1<<2, top.check.pc1<<2, top.pc1_out<<2, top.pcD1<<2, top.pcE1<<2, top.pcM1<<2, top.fail_predictD, top.fail_predictE);
+		$display("%h, %h, %h, %h, %h, %h, %h, %h", top.pcF2<<2, top.check.pc2<<2, top.pc2_out<<2, top.pcD2<<2, top.pcE2<<2, top.pcM2<<2, top.fail_predictD, top.fail_predictE);
 //		$display("%h, %h, %h, %h", top.hit_predict1, top.hit_predict2, top.predict.state1, top.predict.state2);
 //		$display("%h, %h, %h", top.e_calcpc.state, top.e_calcpc.new_state, top.e_calcpc.flag);
 //		$display("%h, %h, %h, %h, %h, %h", top.stateF1, top.state1_in, top.state1_out, top.stateD1, top.stateDj, top.stateEj);
@@ -81,8 +81,13 @@ module test;
 	//	$display("-----------------------------------------------------------");
 	
 	end
-
-	
+/*
+	always begin
+		#20 $display("%h, %h", {3'b100, top.pc1_out<<2}, top.inst1_out);
+			$display("%h, %h", {3'b100, top.pc2_out<<2}, top.inst2_out);
+			$display("---------------------------------------------");
+	end
+*/	
 	parameter address = 32'h0000f95c >> 2;
 
 //レジスタの確認
