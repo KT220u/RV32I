@@ -3,7 +3,7 @@
 #include "Vtop.h"
 
 // Set the clock speed of your processor.
-static constexpr std::size_t clock_Hz = 100000000;
+static constexpr std::size_t clock_Hz = 40000000;
 // UART baudrate
 static constexpr std::size_t uart_Hz = 115200;
 // The number of CoreMark iterations is depend on clock speed.
@@ -51,7 +51,7 @@ int main() {
         top.eval();
         top.sysclk = 1;
         top.eval();
-        uart_rx(top.uart_rx_out);
+        uart_rx(top.uart_tx);
 		
         timer_ps += 1000000000000 / clock_Hz;
     }
